@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
+import requests
 
 app = FastAPI()
 
@@ -21,3 +22,20 @@ def read_root():
 @app.get("/users")
 def read_users():
     return {"users": ["alice", "bob", "charlie"]}
+
+
+@app.get("/getquote")
+def get_quote():
+    try:
+        response = requests.get("https://api.quotable.io/random", verify=False)
+        data = response.json()
+
+        if "content" in data and "author" in data:
+            quote = data["content"]
+            author = data["author"]
+            return {"quote": quote, "author": author}
+
+        else:
+            return {"error": "Failed to fetch quote"}
+    except Exception as e:
+        return {"error": str(e)}
